@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="description" content="AI-Powered Customer Churn Prediction and Retention Intelligence Dashboard. Predict customer churn using Machine Learning models.">
+  <title>RetainIQ | AI Customer Churn Prediction & Retention Intelligence</title>
+  
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
+</head>
+<body>
+  <!-- Ambient background glow elements -->
+  <div class="glow-bg glow-purple"></div>
+  <div class="glow-bg glow-cyan"></div>
+  <div class="glow-bg glow-amber"></div>
+
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="brand">
+        <div class="logo-icon">
+          <i class="fa-solid fa-chart-line-up"></i>
+          <span class="pulse-ring"></span>
+        </div>
+        <div class="brand-text">
+          <h1>Retain<span>IQ</span></h1>
+          <span class="badge-sub">ML Churn Engine</span>
+        </div>
+      </div>
+
+      <nav class="nav-links">
+        <a href="#predictor" class="nav-link active"><i class="fa-solid fa-wand-magic-sparkles"></i> Predictor</a>
+        <a href="#api-docs" class="nav-link" id="btn-api-modal"><i class="fa-solid fa-code"></i> REST API</a>
+        <a href="#models-metrics" class="nav-link"><i class="fa-solid fa-microchip"></i> Models</a>
+        <div class="system-status">
+          <span class="status-dot"></span>
+          <span>API Online</span>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="main-wrapper">
+    <!-- Hero Banner -->
+    <section class="hero-section">
+      <div class="hero-badge">
+        <i class="fa-solid fa-shield-halved"></i> Customer Retention Intelligence
+      </div>
+      <h2 class="hero-title">Predict Customer Churn <br><span class="gradient-text">Before It Happens</span></h2>
+      <p class="hero-subtitle">
+        Leverage machine learning classification to identify at-risk subscribers, uncover churn triggers, and trigger high-converting retention strategies.
+      </p>
+
+      <!-- Quick Preset Buttons -->
+      <div class="preset-strip">
+        <span class="preset-label"><i class="fa-solid fa-bolt"></i> Quick Test Profiles:</span>
+        <button type="button" class="btn-preset btn-preset-danger" id="preset-risky">
+          <i class="fa-solid fa-triangle-exclamation"></i> High Risk (Month-to-month, Fiber, 3 mo)
+        </button>
+        <button type="button" class="btn-preset btn-preset-success" id="preset-loyal">
+          <i class="fa-solid fa-circle-check"></i> Loyal Customer (2-Year, TechSupport, 55 mo)
+        </button>
+        <button type="button" class="btn-preset btn-preset-neutral" id="preset-reset">
+          <i class="fa-solid fa-rotate-left"></i> Reset Defaults
+        </button>
+      </div>
+    </section>
+
+    <!-- Predictor Workspace Grid -->
+    <div class="dashboard-grid" id="predictor">
+      <!-- Left Column: Form -->
+      <section class="card form-card">
+        <div class="card-header">
+          <div>
+            <h3><i class="fa-solid fa-sliders"></i> Customer Profile Attributes</h3>
+            <p class="card-subtitle">Adjust core subscription details and optional service plans</p>
+          </div>
+          <div class="model-select-wrapper">
+            <label for="model-selector"><i class="fa-solid fa-brain"></i> Model:</label>
+            <select id="model-selector" class="custom-select">
+              {% for m in models %}
+              <option value="{{ m }}" {% if m == 'Logistic Regression' %}selected{% endif %}>{{ m }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <form id="churn-form">
+          <!-- Primary Attributes Section -->
+          <div class="form-section-title">
+            <span>1. Core Subscription & Billing (Highest Impact)</span>
+          </div>
+
+          <div class="form-row">
+            <!-- Tenure slider + input -->
+            <div class="form-group col-6">
+              <div class="label-with-value">
+                <label for="tenure"><i class="fa-regular fa-clock"></i> Customer Tenure</label>
+                <span class="value-chip" id="tenure-val-display">12 months</span>
+              </div>
+              <input type="range" id="tenure-range" min="0" max="72" value="12" class="range-slider">
+              <input type="number" id="tenure" name="tenure" min="0" max="72" value="12" class="form-input visually-hidden">
+            </div>
+
+            <!-- Monthly Charges slider + input -->
+            <div class="form-group col-6">
+              <div class="label-with-value">
+                <label for="MonthlyCharges"><i class="fa-solid fa-dollar-sign"></i> Monthly Bill ($)</label>
+                <span class="value-chip" id="monthly-val-display">$70.00</span>
+              </div>
+              <input type="range" id="monthly-range" min="18" max="120" step="0.5" value="70.0" class="range-slider">
+              <input type="number" id="MonthlyCharges" name="MonthlyCharges" min="18" max="120" step="0.5" value="70.0" class="form-input visually-hidden">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <!-- Contract -->
+            <div class="form-group col-4">
+              <label for="Contract"><i class="fa-solid fa-file-contract"></i> Contract Type</label>
+              <select id="Contract" name="Contract" class="form-select">
+                <option value="Month-to-month" selected>Month-to-month (High Risk)</option>
+                <option value="One year">One year</option>
+                <option value="Two year">Two year (Safest)</option>
+              </select>
+            </div>
+
+            <!-- Internet Service -->
+            <div class="form-group col-4">
+              <label for="InternetService"><i class="fa-solid fa-wifi"></i> Internet Service</label>
+              <select id="InternetService" name="InternetService" class="form-select">
+                <option value="Fiber optic" selected>Fiber optic</option>
+                <option value="DSL">DSL</option>
+                <option value="No">No Internet</option>
+              </select>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="form-group col-4">
+              <label for="PaymentMethod"><i class="fa-regular fa-credit-card"></i> Payment Method</label>
+              <select id="PaymentMethod" name="PaymentMethod" class="form-select">
+                <option value="Electronic check" selected>Electronic check</option>
+                <option value="Mailed check">Mailed check</option>
+                <option value="Bank transfer (automatic)">Bank transfer (auto)</option>
+                <option value="Credit card (automatic)">Credit card (auto)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Collapsible Additional Parameters -->
+          <div class="accordion-item">
+            <button type="button" class="accordion-trigger" id="toggle-details" aria-expanded="false">
+              <span><i class="fa-solid fa-layer-group"></i> Additional Add-on Services & Demographics</span>
+              <i class="fa-solid fa-chevron-down accordion-arrow"></i>
+            </button>
+            <div class="accordion-content" id="details-content">
+              <div class="form-row">
+                <div class="form-group col-4">
+                  <label for="TechSupport"><i class="fa-solid fa-headset"></i> Tech Support</label>
+                  <select id="TechSupport" name="TechSupport" class="form-select">
+                    <option value="No" selected>No</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No internet service">No internet</option>
+                  </select>
+                </div>
+
+                <div class="form-group col-4">
+                  <label for="OnlineSecurity"><i class="fa-solid fa-lock"></i> Online Security</label>
+                  <select id="OnlineSecurity" name="OnlineSecurity" class="form-select">
+                    <option value="No" selected>No</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No internet service">No internet</option>
+                  </select>
+                </div>
+
+                <div class="form-group col-4">
+                  <label for="OnlineBackup"><i class="fa-solid fa-cloud-arrow-up"></i> Online Backup</label>
+                  <select id="OnlineBackup" name="OnlineBackup" class="form-select">
+                    <option value="No" selected>No</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No internet service">No internet</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-4">
+                  <label for="DeviceProtection"><i class="fa-solid fa-shield-virus"></i> Device Protection</label>
+                  <select id="DeviceProtection" name="DeviceProtection" class="form-select">
+                    <option value="No" selected>No</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No internet service">No internet</option>
+                  </select>
+                </div>
+
+                <div class="form-group col-4">
+                  <label for="PaperlessBilling"><i class="fa-regular fa-envelope-open"></i> Paperless Billing</label>
+                  <select id="PaperlessBilling" name="PaperlessBilling" class="form-select">
+                    <option value="Yes" selected>Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </div>
+
+                <div class="form-group col-4">
+                  <label for="SeniorCitizen"><i class="fa-solid fa-person-cane"></i> Senior Citizen</label>
+                  <select id="SeniorCitizen" name="SeniorCitizen" class="form-select">
+                    <option value="0" selected>No (Under 65)</option>
+                    <option value="1">Yes (Senior Citizen)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-4">
+                  <label for="Partner"><i class="fa-solid fa-people-arrows"></i> Partner</label>
+                  <select id="Partner" name="Partner" class="form-select">
+                    <option value="No" selected>No</option>
+                    <option value="Yes">Yes</option>
+                  </select>
+                </div>
+
+                <div class="form-group col-4">
+                  <label for="Dependents"><i class="fa-solid fa-children"></i> Dependents</label>
+                  <select id="Dependents" name="Dependents" class="form-select">
+                    <option value="No" selected>No</option>
+                    <option value="Yes">Yes</option>
+                  </select>
+                </div>
+
+                <div class="form-group col-4">
+                  <label for="PhoneService"><i class="fa-solid fa-phone"></i> Phone Service</label>
+                  <select id="PhoneService" name="PhoneService" class="form-select">
+                    <option value="Yes" selected>Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" id="btn-submit">
+              <span class="btn-text"><i class="fa-solid fa-microchip"></i> Calculate Churn Prediction</span>
+              <span class="spinner" id="btn-spinner" style="display: none;"></span>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Right Column: Prediction Results Dashboard -->
+      <section class="card results-card" id="results-panel">
+        <div class="card-header">
+          <div>
+            <h3><i class="fa-solid fa-chart-pie"></i> Retention Intelligence</h3>
+            <p class="card-subtitle">Real-time inference & decision support</p>
+          </div>
+          <span class="status-tag tag-ready" id="model-tag">Ready</span>
+        </div>
+
+        <!-- Initial Placeholder State -->
+        <div class="placeholder-state" id="placeholder-view">
+          <div class="placeholder-icon">
+            <i class="fa-solid fa-satellite-dish"></i>
+          </div>
+          <h4>Awaiting Customer Parameters</h4>
+          <p>Submit the form or click one of the quick test profiles to generate instant ML churn analytics.</p>
+        </div>
+
+        <!-- Populated Prediction Output -->
+        <div class="prediction-view" id="prediction-view" style="display: none;">
+          <!-- Primary Outcome Badge -->
+          <div class="outcome-banner" id="outcome-banner">
+            <div class="outcome-icon" id="outcome-icon">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div class="outcome-text">
+              <span class="outcome-label">Churn Status</span>
+              <h2 class="outcome-title" id="outcome-title">Will Churn</h2>
+              <span class="risk-badge" id="risk-badge">Severe Risk</span>
+            </div>
+            <div class="outcome-metric">
+              <span class="metric-label">Churn Chance</span>
+              <span class="metric-number" id="churn-prob-num">68.4%</span>
+            </div>
+          </div>
+
+          <!-- Split Visual Probability Bar -->
+          <div class="metric-progress-wrapper">
+            <div class="prob-labels">
+              <span><i class="fa-solid fa-user-xmark"></i> Churn Probability</span>
+              <span><i class="fa-solid fa-user-check"></i> Retention Probability</span>
+            </div>
+            <div class="dual-progress-bar">
+              <div class="bar-segment bar-churn" id="bar-churn" style="width: 68%;"></div>
+              <div class="bar-segment bar-stay" id="bar-stay" style="width: 32%;"></div>
+            </div>
+            <div class="prob-values">
+              <span class="val-churn" id="label-churn-prob">68.4%</span>
+              <span class="val-stay" id="label-stay-prob">31.6%</span>
+            </div>
+          </div>
+
+          <!-- Key Drivers Detected -->
+          <div class="insight-box">
+            <div class="box-title">
+              <i class="fa-solid fa-magnifying-glass-chart"></i> Identified Risk Factors
+            </div>
+            <ul class="insight-list" id="risk-factors-list">
+              <li>Month-to-month contracts have the highest churn frequency.</li>
+              <li>Short tenure (3 months) indicates early customer lifecycle vulnerability.</li>
+            </ul>
+          </div>
+
+          <!-- Actionable Recommendations -->
+          <div class="insight-box recommendation-box">
+            <div class="box-title">
+              <i class="fa-solid fa-lightbulb"></i> Recommended Retention Playbook
+            </div>
+            <ul class="insight-list" id="recommendations-list">
+              <li>Offer a 1-year contract discount to lock in commitment.</li>
+              <li>Provide onboarding support and check-in assistance within the first 90 days.</li>
+            </ul>
+          </div>
+
+          <!-- Meta Footer: Model & Confidence -->
+          <div class="prediction-footer">
+            <div class="footer-item">
+              <span class="footer-label">Model:</span>
+              <span class="footer-val" id="meta-model-used">Logistic Regression</span>
+            </div>
+            <div class="footer-item">
+              <span class="footer-label">Model Accuracy:</span>
+              <span class="footer-val" id="meta-model-acc">80.62%</span>
+            </div>
+            <div class="footer-item">
+              <span class="footer-label">ROC-AUC:</span>
+              <span class="footer-val" id="meta-model-auc">0.8422</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Models Comparison & Architecture Section -->
+    <section class="card models-section" id="models-metrics">
+      <div class="card-header">
+        <div>
+          <h3><i class="fa-solid fa-cubes-stacked"></i> Trained Models Benchmark</h3>
+          <p class="card-subtitle">Performance comparison across test set (80/20 stratified split)</p>
+        </div>
+      </div>
+      <div class="model-cards-grid">
+        <div class="model-stat-card model-stat-featured">
+          <div class="stat-badge">Top Performer</div>
+          <h4>Logistic Regression</h4>
+          <p class="stat-desc">Linear decision boundary, ideal baseline for binary telecom churn attributes.</p>
+          <div class="stats-row">
+            <div class="stat-pill"><span class="pill-name">Accuracy</span><span class="pill-num">80.62%</span></div>
+            <div class="stat-pill"><span class="pill-name">F1-Score</span><span class="pill-num">0.6049</span></div>
+            <div class="stat-pill"><span class="pill-name">ROC-AUC</span><span class="pill-num">0.8422</span></div>
+          </div>
+        </div>
+
+        <div class="model-stat-card">
+          <div class="stat-badge">Ensemble</div>
+          <h4>Random Forest</h4>
+          <p class="stat-desc">100 bagging decision trees; robust against outlier variations.</p>
+          <div class="stats-row">
+            <div class="stat-pill"><span class="pill-name">Accuracy</span><span class="pill-num">78.50%</span></div>
+            <div class="stat-pill"><span class="pill-name">F1-Score</span><span class="pill-num">0.5498</span></div>
+            <div class="stat-pill"><span class="pill-name">ROC-AUC</span><span class="pill-num">0.8248</span></div>
+          </div>
+        </div>
+
+        <div class="model-stat-card">
+          <div class="stat-badge">Gradient Boost</div>
+          <h4>XGBoost Classifier</h4>
+          <p class="stat-desc">Sequential gradient boosting trees; captures non-linear feature interactions.</p>
+          <div class="stats-row">
+            <div class="stat-pill"><span class="pill-name">Accuracy</span><span class="pill-num">77.64%</span></div>
+            <div class="stat-pill"><span class="pill-name">F1-Score</span><span class="pill-num">0.5532</span></div>
+            <div class="stat-pill"><span class="pill-name">ROC-AUC</span><span class="pill-num">0.8183</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REST API Documentation & Playground -->
+    <section class="card api-section" id="api-docs">
+      <div class="card-header">
+        <div>
+          <h3><i class="fa-solid fa-terminal"></i> Developer REST API</h3>
+          <p class="card-subtitle">Integrate churn predictions directly into CRM, billing pipelines, or mobile apps</p>
+        </div>
+        <div class="api-endpoint-badge">
+          <code>POST /api/predict</code>
+        </div>
+      </div>
+
+      <div class="api-demo-grid">
+        <!-- Request Code Snippet -->
+        <div class="code-block-wrapper">
+          <div class="code-header">
+            <span><i class="fa-solid fa-code"></i> cURL Request Example</span>
+            <button type="button" class="btn-copy" id="btn-copy-curl">
+              <i class="fa-regular fa-copy"></i> Copy
+            </button>
+          </div>
+          <pre><code id="curl-code-snippet">curl -X POST http://127.0.0.1:5000/api/predict \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tenure": 3,
+    "MonthlyCharges": 85.0,
+    "Contract": "Month-to-month",
+    "InternetService": "Fiber optic",
+    "PaymentMethod": "Electronic check",
+    "TechSupport": "No",
+    "model_name": "Logistic Regression"
+  }'</code></pre>
+        </div>
+
+        <!-- Response Code Snippet -->
+        <div class="code-block-wrapper">
+          <div class="code-header">
+            <span><i class="fa-solid fa-circle-nodes"></i> JSON API Response</span>
+            <span class="http-status">200 OK</span>
+          </div>
+          <pre><code>{
+  "churn": true,
+  "prediction_label": "Will Churn",
+  "churn_probability": 72.45,
+  "stay_probability": 27.55,
+  "risk_level": "Severe",
+  "model_used": "Logistic Regression",
+  "risk_factors": [
+    "Month-to-month contracts have highest churn",
+    "Short tenure (3 months)",
+    "Fiber optic users without Tech Support"
+  ],
+  "recommendations": [
+    "Offer 1-year contract discount",
+    "Bundle Tech Support"
+  ]
+}</code></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <p>RetainIQ &copy; 2026 &mdash; Telecom Customer Churn Prediction Machine Learning System</p>
+      <div class="footer-tags">
+        <span>Flask REST API</span>
+        <span>Scikit-Learn</span>
+        <span>XGBoost</span>
+        <span>HTML5 &amp; Vanilla CSS</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
